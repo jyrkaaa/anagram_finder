@@ -8,3 +8,5 @@ Anagram search is searched with "http://51.20.37.171:8000/api/v1/anagram?word="
 Importing is with "http://51.20.37.171:8000/api/v1/wordsJson" where the payload is an json of
 { "words": ["word1", "word2" ... ] }
 Frontend search start from 3 letters.
+Backend : "http://51.20.37.171:8000"
+
