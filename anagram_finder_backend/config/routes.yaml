@@ -1,0 +1,25 @@
+anagram_list:
+    path: /api/v1/anagram
+    controller: App\Controller\AnagramController::findAnagram
+    methods: [GET]
+
+wordbase_import:
+    path: /api/v1/words
+    controller: App\Controller\WordImportController::import
+    methods: [POST]
+
+wordbase_json_import:
+    path: /api/v1/wordsJson
+    controller: App\Controller\WordImportController::importJson
+    methods: [POST]
+wordbase_delete:
+    path: /api/v1/words
+    controller: App\Controller\WordImportController::deleteDb
+    methods: [DELETE]
+
+swagger_ui:
+    path: /api/doc
+    controller: Nelmio\ApiDocBundle\Controller\SwaggerUiAction::class
+openapi_json:
+    path: /api/docs.json
+    controller: Nelmio\ApiDocBundle\Controller\SwaggerAction::class
