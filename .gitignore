@@ -1,0 +1,84 @@
+# ----------------------------------------
+# General
+# ----------------------------------------
+.DS_Store
+.env
+.env.local
+.env.*.local
+node_modules/
+vendor/
+*.log
+*.cache
+
+# Ignore local databases / storage
+/storage/
+*.sqlite
+
+# Ignore OS and editor/system files
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.bak
+*.tmp
+
+# ----------------------------------------
+# Symfony (PHP backend)
+# ----------------------------------------
+/var/
+/vendor/
+/public/bundles/
+/node_modules/
+/config/secrets/prod/prod.decrypt.private.php
+/.phpunit.result.cache
+/phpunit.xml
+
+# Cache & logs
+/var/
+/var/cache/
+/var/log/
+/var/tmp/
+/var/backups/
+
+# Composer
+composer.lock
+
+# Symfony built assets
+/public/build/
+
+# ----------------------------------------
+# Next.js (React frontend)
+# ----------------------------------------
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Local development environment
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+
+# Static exports
+/static/
+
+# ----------------------------------------
+# Git Submodules or other deployments
+# ----------------------------------------
+.gitmodules
+*.tgz
+*.zip
+
+# ----------------------------------------
+# Optional - lock files (choose based on tool)
+# ----------------------------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
