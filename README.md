@@ -11,3 +11,14 @@ With endpoint "http://13.51.160.33:8000/api/v1/words" you can isert json of { "u
 Frontend search start from 3 letters.
 Backend : "http://13.51.160.33:8000"
 
+Api endpoints:
+[GET]
+http://13.51.160.33:8000/api/v1/anagram?word={word}- the $word being the searched word.
+http://13.51.160.33:8000/api/v1/anagramCount - return json of how many words are in the database, used for checking import integrity
+
+[POST]
+http://13.51.160.33:8000/api/v1/wordsJson - expects body of {"words": ["word1", "word2"]}
+http://13.51.160.33:8000/api/v1/words - expects body of {"url": "your_url.com/data.txt" }
+
+[DELETE]
+http://13.51.160.33:8000/api/v1/words - cleanses DB (no body)
