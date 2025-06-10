@@ -255,17 +255,37 @@
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
-    <service id="App\Service\Import\CsvImportStrategy" class="App\Service\Import\CsvImportStrategy" autowire="true" autoconfigure="true">
+    <service id="App\Service\Import\SaveWordsToDatabaseHandler" class="App\Service\Import\SaveWordsToDatabaseHandler" autowire="true" autoconfigure="true">
+      <tag name="messenger.message_handler" bus="" handles="" method="" priority="0" from_transport=""/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+    </service>
+    <service id="App\Service\Import\SaveWordsToDatabaseMessage" class="App\Service\Import\SaveWordsToDatabaseMessage" autowire="true" autoconfigure="true"/>
+    <service id="App\Service\Import\StartWordImportHandler" class="App\Service\Import\StartWordImportHandler" autowire="true" autoconfigure="true">
+      <tag name="messenger.message_handler" bus="" handles="" method="" priority="0" from_transport=""/>
+      <argument type="tagged_iterator" tag="app.word_import_strategy"/>
+      <argument type="service" id="messenger.bus.default"/>
+    </service>
+    <service id="App\Service\Import\StartWordImportMessage" class="App\Service\Import\StartWordImportMessage" autowire="true" autoconfigure="true">
+      <tag name="container.error" message="Cannot autowire service &quot;App\Service\Import\StartWordImportMessage&quot;: argument &quot;$url&quot; of method &quot;__construct()&quot; is type-hinted &quot;string&quot;, you should configure its value explicitly."/>
+    </service>
+    <service id="App\Service\Import\StockSavingMessageConsumer" class="App\Service\Import\StockSavingMessageConsumer" autowire="true" autoconfigure="true"/>
+    <service id="App\Service\Import\Strategy\CsvImportStrategy" class="App\Service\Import\Strategy\CsvImportStrategy" autowire="true" autoconfigure="true">
       <tag name="app.word_import_strategy"/>
     </service>
-    <service id="App\Service\Import\JsonImportStrategy" class="App\Service\Import\JsonImportStrategy" autowire="true" autoconfigure="true">
+    <service id="App\Service\Import\Strategy\JsonImportStrategy" class="App\Service\Import\Strategy\JsonImportStrategy" autowire="true" autoconfigure="true">
       <tag name="app.word_import_strategy"/>
     </service>
-    <service id="App\Service\Import\TextImportStrategy" class="App\Service\Import\TextImportStrategy" autowire="true" autoconfigure="true">
+    <service id="App\Service\Import\Strategy\TextImportStrategy" class="App\Service\Import\Strategy\TextImportStrategy" autowire="true" autoconfigure="true">
       <tag name="app.word_import_strategy"/>
     </service>
+    <service id="App\Service\Import\WordImportMessageConsumer" class="App\Service\Import\WordImportMessageConsumer" autowire="true" autoconfigure="true"/>
+    <service id="App\Service\Import\WordImportMessageProducer" class="App\Service\Import\WordImportMessageProducer" autowire="true" autoconfigure="true"/>
     <service id="App\Service\Import\WordImporter" class="App\Service\Import\WordImporter" autowire="true" autoconfigure="true">
       <argument type="tagged_iterator" tag="app.word_import_strategy"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+    </service>
+    <service id="App\Service\Import\WordSavingMessageConsumer" class="App\Service\Import\WordSavingMessageConsumer" autowire="true" autoconfigure="true"/>
+    <service id="App\Service\Import\WordSavingService" class="App\Service\Import\WordSavingService" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
     </service>
     <service id="argument_metadata_factory" class="Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory"/>
@@ -274,7 +294,7 @@
     </service>
     <service id="argument_resolver.datetime" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DateTimeValueResolver">
       <tag priority="100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DateTimeValueResolver">controller.argument_value_resolver</tag>
-      <argument>null</argument>
+      <argument type="service" id="clock" on-invalid="null"/>
     </service>
     <service id="argument_resolver.request_payload" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestPayloadValueResolver" lazy="true">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestPayloadValueResolver">controller.targeted_value_resolver</tag>
@@ -296,7 +316,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.leiThow"/>
+      <argument type="service" id=".service_locator.i6PFaYj"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -403,7 +423,7 @@
       <argument>%kernel.secret%</argument>
       <argument>_hash</argument>
       <argument>_expiration</argument>
-      <argument>null</argument>
+      <argument type="service" id="clock" on-invalid="null"/>
     </service>
     <service id="config_cache_factory" class="Symfony\Component\Config\ResourceCheckerConfigCacheFactory">
       <argument type="tagged_iterator" tag="config_cache.resource_checker"/>
@@ -424,9 +444,11 @@
         <argument key="cache.validator" type="service" id="cache.validator" on-invalid="ignore_uninitialized"/>
         <argument key="cache.serializer" type="service" id="cache.serializer" on-invalid="ignore_uninitialized"/>
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.messenger.restart_workers_signal" type="service" id="cache.messenger.restart_workers_signal" on-invalid="ignore_uninitialized"/>
         <argument key="debug.stopwatch" type="service" id="debug.stopwatch" on-invalid="ignore_uninitialized"/>
         <argument key="debug.event_dispatcher" type="service" id="debug.event_dispatcher" on-invalid="ignore_uninitialized"/>
         <argument key="session_listener" type="service" id="session_listener" on-invalid="ignore_uninitialized"/>
+        <argument key="messenger.transport.in_memory.factory" type="service" id="messenger.transport.in_memory.factory" on-invalid="ignore_uninitialized"/>
         <argument key="twig" type="service" id="twig" on-invalid="ignore_uninitialized"/>
         <argument key="doctrine" type="service" id="doctrine" on-invalid="ignore_uninitialized"/>
         <argument key="doctrine.debug_data_holder" type="service" id="doctrine.debug_data_holder" on-invalid="ignore_uninitialized"/>
@@ -453,6 +475,9 @@
         <argument key="cache.property_info" type="collection">
           <argument>reset</argument>
         </argument>
+        <argument key="cache.messenger.restart_workers_signal" type="collection">
+          <argument>reset</argument>
+        </argument>
         <argument key="debug.stopwatch" type="collection">
           <argument>reset</argument>
         </argument>
@@ -460,6 +485,9 @@
           <argument>reset</argument>
         </argument>
         <argument key="session_listener" type="collection">
+          <argument>reset</argument>
+        </argument>
+        <argument key="messenger.transport.in_memory.factory" type="collection">
           <argument>reset</argument>
         </argument>
         <argument key="twig" type="collection">
@@ -507,7 +535,7 @@
     <service id="container.get_routing_condition_service" class="Closure" public="true">
       <tag name="routing.expression_language_function" function="service"/>
       <argument type="collection">
-        <argument type="service" id=".service_locator.GIuJv7e"/>
+        <argument type="service" id="messenger.retry_strategy_locator"/>
         <argument>get</argument>
       </argument>
       <factory class="Closure" method="fromCallable"/>
@@ -520,6 +548,7 @@
       <argument type="service" id="kernel"/>
       <argument type="service" id="logger" on-invalid="null"/>
     </service>
+    <service id="clock" class="Symfony\Component\Clock\Clock"/>
     <service id="Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface" abstract="true">
       <tag name="container.excluded"/>
     </service>
@@ -626,6 +655,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.messenger.restart_workers_signal</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
       </argument>
@@ -668,6 +698,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.messenger.restart_workers_signal</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
       </argument>
@@ -687,6 +718,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.messenger.restart_workers_signal</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
       </argument>
@@ -781,6 +813,107 @@
       </call>
       <call method="setDescription">
         <argument>Display configured listeners for an application</argument>
+      </call>
+    </service>
+    <service id="console.command.messenger_consume_messages" class="Symfony\Component\Messenger\Command\ConsumeMessagesCommand">
+      <tag name="console.command"/>
+      <tag name="monolog.logger" channel="messenger"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="messenger.routable_message_bus"/>
+      <argument type="service" id="messenger.receiver_locator"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="logger" on-invalid="null"/>
+      <argument type="collection"/>
+      <argument type="service" id="messenger.listener.reset_services" on-invalid="null"/>
+      <argument type="collection">
+        <argument>messenger.bus.default</argument>
+      </argument>
+      <argument>null</argument>
+      <argument>null</argument>
+      <call method="setName">
+        <argument>messenger:consume</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Consume messages</argument>
+      </call>
+    </service>
+    <service id="console.command.messenger_setup_transports" class="Symfony\Component\Messenger\Command\SetupTransportsCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="messenger.receiver_locator"/>
+      <argument type="collection"/>
+      <call method="setName">
+        <argument>messenger:setup-transports</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Prepare the required infrastructure for the transport</argument>
+      </call>
+    </service>
+    <service id="console.command.messenger_debug" class="Symfony\Component\Messenger\Command\DebugCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="collection">
+        <argument key="messenger.bus.default" type="collection">
+          <argument key="App\Service\Import\SaveWordsToDatabaseMessage" type="collection">
+            <argument type="collection">
+              <argument>App\Service\Import\SaveWordsToDatabaseHandler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+          <argument key="App\Service\Import\StartWordImportMessage" type="collection">
+            <argument type="collection">
+              <argument>App\Service\Import\StartWordImportHandler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+          <argument key="Symfony\Component\Process\Messenger\RunProcessMessage" type="collection">
+            <argument type="collection">
+              <argument>process.messenger.process_message_handler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+          <argument key="Symfony\Component\Console\Messenger\RunCommandMessage" type="collection">
+            <argument type="collection">
+              <argument>console.messenger.execute_command_handler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+          <argument key="Symfony\Component\Messenger\Message\RedispatchMessage" type="collection">
+            <argument type="collection">
+              <argument>messenger.redispatch_message_handler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
+        </argument>
+      </argument>
+      <call method="setName">
+        <argument>debug:messenger</argument>
+      </call>
+      <call method="setDescription">
+        <argument>List messages you can dispatch using the message buses</argument>
+      </call>
+    </service>
+    <service id="console.command.messenger_stop_workers" class="Symfony\Component\Messenger\Command\StopWorkersCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="cache.messenger.restart_workers_signal"/>
+      <call method="setName">
+        <argument>messenger:stop-workers</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Stop workers after their current message</argument>
+      </call>
+    </service>
+    <service id="console.command.messenger_stats" class="Symfony\Component\Messenger\Command\StatsCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="messenger.receiver_locator"/>
+      <argument type="collection"/>
+      <call method="setName">
+        <argument>messenger:stats</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Show the message count for one or more transports</argument>
       </call>
     </service>
     <service id="console.command.router_debug" class="Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand">
@@ -990,6 +1123,17 @@
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
+    <service id="cache.messenger.restart_workers_signal" class="Symfony\Component\Cache\Adapter\FilesystemAdapter">
+      <tag name="cache.pool"/>
+      <tag name="kernel.reset" method="reset"/>
+      <argument>9v8V4ScgOX</argument>
+      <argument>0</argument>
+      <argument>/var/www/symfony/var/cache/dev/pools/app</argument>
+      <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
     <service id="cache.adapter.system" class="Symfony\Component\Cache\Adapter\AdapterInterface" abstract="true">
       <tag name="cache.pool" clearer="cache.system_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
@@ -1100,6 +1244,7 @@
       <tag name="cache.pool.clearer"/>
       <argument type="collection">
         <argument key="cache.app" type="service" id="cache.app" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.messenger.restart_workers_signal" type="service" id="cache.messenger.restart_workers_signal" on-invalid="ignore_uninitialized"/>
       </argument>
     </service>
     <service id="cache.system_clearer" class="Symfony\Component\HttpKernel\CacheClearer\Psr6CacheClearer" public="true">
@@ -1119,6 +1264,7 @@
         <argument key="cache.validator" type="service" id="cache.validator" on-invalid="ignore_uninitialized"/>
         <argument key="cache.serializer" type="service" id="cache.serializer" on-invalid="ignore_uninitialized"/>
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.messenger.restart_workers_signal" type="service" id="cache.messenger.restart_workers_signal" on-invalid="ignore_uninitialized"/>
         <argument key="cache.doctrine.orm.default.result" type="service" id="cache.doctrine.orm.default.result" on-invalid="ignore_uninitialized"/>
         <argument key="cache.doctrine.orm.default.query" type="service" id="cache.doctrine.orm.default.query" on-invalid="ignore_uninitialized"/>
       </argument>
@@ -1389,6 +1535,70 @@
         <argument>-1000</argument>
       </call>
       <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageFailedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.retry.send_failed_message_for_retry_listener"/>
+          <argument>onMessageFailed</argument>
+        </argument>
+        <argument>100</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageFailedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.failure.add_error_details_stamp_listener"/>
+          <argument>onMessageFailed</argument>
+        </argument>
+        <argument>200</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerStartedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
+          <argument>onWorkerStarted</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerRunningEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
+          <argument>onWorkerRunning</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageFailedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.stop_worker_on_stop_exception_listener"/>
+          <argument>onMessageFailed</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerRunningEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.stop_worker_on_stop_exception_listener"/>
+          <argument>onWorkerRunning</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.reset_memory_usage"/>
+          <argument>resetBefore</argument>
+        </argument>
+        <argument>-1024</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerRunningEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="messenger.listener.reset_memory_usage"/>
+          <argument>collectAfter</argument>
+        </argument>
+        <argument>-1024</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.view</argument>
         <argument type="collection">
           <argument type="service_closure" id="controller.template_attribute_listener"/>
@@ -1403,6 +1613,22 @@
           <argument>onKernelRequest</argument>
         </argument>
         <argument>192</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageHandledEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="doctrine.orm.messenger.event_subscriber.doctrine_clear_entity_manager"/>
+          <argument>onWorkerMessageHandled</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Messenger\Event\WorkerMessageFailedEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="doctrine.orm.messenger.event_subscriber.doctrine_clear_entity_manager"/>
+          <argument>onWorkerMessageFailed</argument>
+        </argument>
+        <argument>0</argument>
       </call>
       <call method="addListener">
         <argument>console.error</argument>
@@ -1434,7 +1660,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.leiThow"/>
+      <argument type="service" id=".service_locator.i6PFaYj"/>
     </service>
     <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
@@ -1612,6 +1838,7 @@
     <service id="serializer" class="Symfony\Component\Serializer\Serializer">
       <argument type="collection">
         <argument type="service" id="serializer.denormalizer.unwrapping"/>
+        <argument type="service" id="serializer.normalizer.flatten_exception"/>
         <argument type="service" id="serializer.normalizer.problem"/>
         <argument type="service" id="serializer.normalizer.uid"/>
         <argument type="service" id="serializer.normalizer.datetime"/>
@@ -1972,6 +2199,119 @@
       <argument>%session.storage.options%</argument>
     </service>
     <service id="session.marshaller" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\IdentityMarshaller"/>
+    <service id="messenger.senders_locator" class="Symfony\Component\Messenger\Transport\Sender\SendersLocator">
+      <argument type="collection"/>
+      <argument type="service" id="messenger.retry_strategy_locator"/>
+    </service>
+    <service id="messenger.middleware.send_message" class="Symfony\Component\Messenger\Middleware\SendMessageMiddleware" abstract="true">
+      <tag name="monolog.logger" channel="messenger"/>
+      <argument type="service" id="messenger.senders_locator"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
+    <service id="serializer.normalizer.flatten_exception" class="Symfony\Component\Messenger\Transport\Serialization\Normalizer\FlattenExceptionNormalizer">
+      <tag name="serializer.normalizer" built_in="1" priority="-880"/>
+      <tag name="serializer.normalizer.default" priority="-880"/>
+    </service>
+    <service id="messenger.transport.native_php_serializer" class="Symfony\Component\Messenger\Transport\Serialization\PhpSerializer"/>
+    <service id="messenger.middleware.handle_message" class="Symfony\Component\Messenger\Middleware\HandleMessageMiddleware" abstract="true">
+      <tag name="monolog.logger" channel="messenger"/>
+      <argument type="abstract">bus handler resolver</argument>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
+    <service id="messenger.middleware.add_bus_name_stamp_middleware" class="Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware" abstract="true"/>
+    <service id="messenger.middleware.dispatch_after_current_bus" class="Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware"/>
+    <service id="messenger.middleware.validation" class="Symfony\Component\Messenger\Middleware\ValidationMiddleware">
+      <argument type="service" id="validator"/>
+    </service>
+    <service id="messenger.middleware.reject_redelivered_message_middleware" class="Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware"/>
+    <service id="messenger.middleware.failed_message_processing_middleware" class="Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware"/>
+    <service id="messenger.middleware.traceable" class="Symfony\Component\Messenger\Middleware\TraceableMiddleware" abstract="true">
+      <argument type="service" id="debug.stopwatch"/>
+    </service>
+    <service id="messenger.middleware.router_context" class="Symfony\Component\Messenger\Middleware\RouterContextMiddleware">
+      <argument type="service" id="router.default"/>
+    </service>
+    <service id="messenger.receiver_locator" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection"/>
+    </service>
+    <service id="messenger.transport_factory" class="Symfony\Component\Messenger\Transport\TransportFactory">
+      <argument type="tagged_iterator" tag="messenger.transport_factory"/>
+    </service>
+    <service id="messenger.transport.sync.factory" class="Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory">
+      <tag name="messenger.transport_factory"/>
+      <argument type="service" id="messenger.routable_message_bus"/>
+    </service>
+    <service id="messenger.transport.in_memory.factory" class="Symfony\Component\Messenger\Transport\InMemory\InMemoryTransportFactory">
+      <tag name="messenger.transport_factory"/>
+      <tag name="kernel.reset" method="reset"/>
+      <argument type="service" id="clock" on-invalid="null"/>
+    </service>
+    <service id="messenger.retry_strategy_locator" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection"/>
+    </service>
+    <service id="messenger.retry.abstract_multiplier_retry_strategy" class="Symfony\Component\Messenger\Retry\MultiplierRetryStrategy" abstract="true">
+      <argument type="abstract">max retries</argument>
+      <argument type="abstract">delay ms</argument>
+      <argument type="abstract">multiplier</argument>
+      <argument type="abstract">max delay ms</argument>
+      <argument type="abstract">jitter</argument>
+    </service>
+    <service id="messenger.retry.send_failed_message_for_retry_listener" class="Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="messenger"/>
+      <argument type="service" id="messenger.retry_strategy_locator"/>
+      <argument type="service" id="messenger.retry_strategy_locator"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+    </service>
+    <service id="messenger.failure.add_error_details_stamp_listener" class="Symfony\Component\Messenger\EventListener\AddErrorDetailsStampListener">
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="messenger.listener.dispatch_pcntl_signal_listener" class="Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener">
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="messenger.listener.stop_worker_on_restart_signal_listener" class="Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="messenger"/>
+      <argument type="service" id="cache.messenger.restart_workers_signal"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+    </service>
+    <service id="messenger.listener.stop_worker_on_stop_exception_listener" class="Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener">
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="messenger.listener.reset_services" class="Symfony\Component\Messenger\EventListener\ResetServicesListener">
+      <argument type="service" id="services_resetter"/>
+    </service>
+    <service id="messenger.listener.reset_memory_usage" class="Symfony\Component\Messenger\EventListener\ResetMemoryUsageListener">
+      <tag name="kernel.event_subscriber"/>
+    </service>
+    <service id="messenger.routable_message_bus" class="Symfony\Component\Messenger\RoutableMessageBus">
+      <argument type="service" id=".service_locator.IlGSE9J"/>
+      <argument type="service" id="messenger.bus.default"/>
+    </service>
+    <service id="messenger.redispatch_message_handler" class="Symfony\Component\Messenger\Handler\RedispatchMessageHandler">
+      <tag name="messenger.message_handler"/>
+      <argument type="service" id="messenger.bus.default"/>
+    </service>
+    <service id="messenger.bus.default" class="Symfony\Component\Messenger\MessageBus">
+      <tag name="messenger.bus"/>
+      <argument type="iterator">
+        <argument type="service" id="messenger.bus.default.middleware.traceable"/>
+        <argument type="service" id="messenger.bus.default.middleware.add_bus_name_stamp_middleware"/>
+        <argument type="service" id="messenger.middleware.reject_redelivered_message_middleware"/>
+        <argument type="service" id="messenger.middleware.dispatch_after_current_bus"/>
+        <argument type="service" id="messenger.middleware.failed_message_processing_middleware"/>
+        <argument type="service" id="messenger.bus.default.middleware.send_message"/>
+        <argument type="service" id="messenger.bus.default.middleware.handle_message"/>
+      </argument>
+    </service>
     <service id="twig" class="Twig\Environment">
       <tag name="container.preload" class="Twig\Cache\FilesystemCache"/>
       <tag name="container.preload" class="Twig\Extension\CoreExtension"/>
@@ -2127,7 +2467,7 @@
       <argument>true</argument>
     </service>
     <service id="twig.extension.htmlsanitizer" class="Symfony\Bridge\Twig\Extension\HtmlSanitizerExtension">
-      <argument type="service" id=".service_locator.GIuJv7e"/>
+      <argument type="service" id="messenger.retry_strategy_locator"/>
     </service>
     <service id="twig.extension.httpkernel" class="Symfony\Bridge\Twig\Extension\HttpKernelExtension">
       <tag name="twig.extension"/>
@@ -2394,6 +2734,24 @@
       <argument type="collection">
         <argument key="default">600</argument>
       </argument>
+    </service>
+    <service id="messenger.middleware.doctrine_transaction" class="Symfony\Bridge\Doctrine\Messenger\DoctrineTransactionMiddleware" abstract="true">
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="messenger.middleware.doctrine_ping_connection" class="Symfony\Bridge\Doctrine\Messenger\DoctrinePingConnectionMiddleware" abstract="true">
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="messenger.middleware.doctrine_close_connection" class="Symfony\Bridge\Doctrine\Messenger\DoctrineCloseConnectionMiddleware" abstract="true">
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="messenger.middleware.doctrine_open_transaction_logger" class="Symfony\Bridge\Doctrine\Messenger\DoctrineOpenTransactionLoggerMiddleware" abstract="true">
+      <argument type="service" id="doctrine"/>
+      <argument>null</argument>
+      <argument type="service" id="logger"/>
+    </service>
+    <service id="doctrine.orm.messenger.event_subscriber.doctrine_clear_entity_manager" class="Symfony\Bridge\Doctrine\Messenger\DoctrineClearEntityManagerWorkerSubscriber">
+      <tag name="kernel.event_subscriber"/>
+      <argument type="service" id="doctrine"/>
     </service>
     <service id=".1_ServiceLocator~Z5AHsIu" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <argument type="collection"/>
@@ -3405,6 +3763,10 @@
     <service id=".abstract.instanceof.App\Entity\Word" class="App\Entity\Word" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\WordRepository" class="App\Repository\WordRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\WordRepository" class="App\Repository\WordRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.App\Service\Import\SaveWordsToDatabaseHandler.0.App\Service\Import\SaveWordsToDatabaseHandler" class="App\Service\Import\SaveWordsToDatabaseHandler" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Service\Import\SaveWordsToDatabaseHandler" class="App\Service\Import\SaveWordsToDatabaseHandler" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.App\Service\Import\StartWordImportHandler.0.App\Service\Import\StartWordImportHandler" class="App\Service\Import\StartWordImportHandler" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Service\Import\StartWordImportHandler" class="App\Service\Import\StartWordImportHandler" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".service_locator.pRu6x_4" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -3853,17 +4215,17 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.zN9ngJz" method="withContext"/>
     </service>
-    <service id=".service_locator.TckZ.0d" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.kbyEuPk" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="importer" type="service_closure" id="App\Service\Import\WordImporter"/>
+        <argument key="bus" type="service_closure" id="messenger.bus.default"/>
       </argument>
     </service>
-    <service id=".service_locator.TckZ.0d.App\Controller\WordImportController::import()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.kbyEuPk.App\Controller\WordImportController::import()" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\WordImportController::import()"/>
       <argument>App\Controller\WordImportController::import()</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.TckZ.0d" method="withContext"/>
+      <factory service=".service_locator.kbyEuPk" method="withContext"/>
     </service>
     <service id=".service_locator.YSugF_d" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -3884,7 +4246,7 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.zN9ngJz" method="withContext"/>
     </service>
-    <service id=".service_locator.leiThow" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.i6PFaYj" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
@@ -3892,13 +4254,13 @@
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
         <argument key="App\Controller\AnagramController::findAnagram" type="service_closure" id=".service_locator.zN9ngJz.App\Controller\AnagramController::findAnagram()"/>
-        <argument key="App\Controller\WordImportController::import" type="service_closure" id=".service_locator.TckZ.0d.App\Controller\WordImportController::import()"/>
+        <argument key="App\Controller\WordImportController::import" type="service_closure" id=".service_locator.kbyEuPk.App\Controller\WordImportController::import()"/>
         <argument key="App\Controller\WordImportController::importJson" type="service_closure" id=".service_locator.YSugF_d.App\Controller\WordImportController::importJson()"/>
         <argument key="App\Controller\WordImportController::deleteDb" type="service_closure" id=".service_locator.zN9ngJz.App\Controller\WordImportController::deleteDb()"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
         <argument key="App\Controller\AnagramController:findAnagram" type="service_closure" id=".service_locator.zN9ngJz.App\Controller\AnagramController::findAnagram()"/>
-        <argument key="App\Controller\WordImportController:import" type="service_closure" id=".service_locator.TckZ.0d.App\Controller\WordImportController::import()"/>
+        <argument key="App\Controller\WordImportController:import" type="service_closure" id=".service_locator.kbyEuPk.App\Controller\WordImportController::import()"/>
         <argument key="App\Controller\WordImportController:importJson" type="service_closure" id=".service_locator.YSugF_d.App\Controller\WordImportController::importJson()"/>
         <argument key="App\Controller\WordImportController:deleteDb" type="service_closure" id=".service_locator.zN9ngJz.App\Controller\WordImportController::deleteDb()"/>
       </argument>
@@ -3956,6 +4318,73 @@
     <service id=".debug.value_resolver.argument_resolver.query_parameter_value_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
       <argument type="service" id="argument_resolver.query_parameter_value_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
+    </service>
+    <service id="messenger.bus.default.middleware.traceable" class="Symfony\Component\Messenger\Middleware\TraceableMiddleware">
+      <argument type="service" id="debug.stopwatch"/>
+      <argument>messenger.bus.default</argument>
+    </service>
+    <service id="messenger.bus.default.middleware.add_bus_name_stamp_middleware" class="Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware">
+      <argument>messenger.bus.default</argument>
+    </service>
+    <service id="messenger.bus.default.middleware.send_message" class="Symfony\Component\Messenger\Middleware\SendMessageMiddleware">
+      <argument type="service" id="messenger.senders_locator"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument>true</argument>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
+    <service id="messenger.bus.default.middleware.handle_message" class="Symfony\Component\Messenger\Middleware\HandleMessageMiddleware">
+      <argument type="service" id="messenger.bus.default.messenger.handlers_locator"/>
+      <argument>false</argument>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
+    <service id=".service_locator.IlGSE9J" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="messenger.bus.default" type="service_closure" id="messenger.bus.default"/>
+      </argument>
+    </service>
+    <service id=".messenger.handler_descriptor.8yqmU4V" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="App\Service\Import\SaveWordsToDatabaseHandler"/>
+      <argument type="collection"/>
+    </service>
+    <service id=".messenger.handler_descriptor.L3VkNJb" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="App\Service\Import\StartWordImportHandler"/>
+      <argument type="collection"/>
+    </service>
+    <service id=".messenger.handler_descriptor.Die6Bxe" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="process.messenger.process_message_handler"/>
+      <argument type="collection"/>
+    </service>
+    <service id=".messenger.handler_descriptor.NumTeF8" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="console.messenger.execute_command_handler"/>
+      <argument type="collection"/>
+    </service>
+    <service id=".messenger.handler_descriptor.jyyWvHw" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="messenger.redispatch_message_handler"/>
+      <argument type="collection"/>
+    </service>
+    <service id="messenger.bus.default.messenger.handlers_locator" class="Symfony\Component\Messenger\Handler\HandlersLocator">
+      <argument type="collection">
+        <argument key="App\Service\Import\SaveWordsToDatabaseMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.8yqmU4V"/>
+        </argument>
+        <argument key="App\Service\Import\StartWordImportMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.L3VkNJb"/>
+        </argument>
+        <argument key="Symfony\Component\Process\Messenger\RunProcessMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.Die6Bxe"/>
+        </argument>
+        <argument key="Symfony\Component\Console\Messenger\RunCommandMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.NumTeF8"/>
+        </argument>
+        <argument key="Symfony\Component\Messenger\Message\RedispatchMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.jyyWvHw"/>
+        </argument>
+      </argument>
     </service>
     <service id=".service_locator.ZSS2D.Y" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -4094,10 +4523,6 @@
       <argument type="collection">
         <argument key="reverse_container" type="service_closure" id="reverse_container" on-invalid="ignore_uninitialized"/>
       </argument>
-    </service>
-    <service id=".service_locator.GIuJv7e" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection"/>
     </service>
     <service id=".service_locator.DOrA4Nm" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -4290,6 +4715,41 @@
       <argument>Display configured listeners for an application</argument>
       <argument>false</argument>
       <argument type="service_closure" id="console.command.event_dispatcher_debug"/>
+    </service>
+    <service id=".console.command.messenger_consume_messages.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>messenger:consume</argument>
+      <argument type="collection"/>
+      <argument>Consume messages</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.messenger_consume_messages"/>
+    </service>
+    <service id=".console.command.messenger_setup_transports.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>messenger:setup-transports</argument>
+      <argument type="collection"/>
+      <argument>Prepare the required infrastructure for the transport</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.messenger_setup_transports"/>
+    </service>
+    <service id=".console.command.messenger_debug.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>debug:messenger</argument>
+      <argument type="collection"/>
+      <argument>List messages you can dispatch using the message buses</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.messenger_debug"/>
+    </service>
+    <service id=".console.command.messenger_stop_workers.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>messenger:stop-workers</argument>
+      <argument type="collection"/>
+      <argument>Stop workers after their current message</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.messenger_stop_workers"/>
+    </service>
+    <service id=".console.command.messenger_stats.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>messenger:stats</argument>
+      <argument type="collection"/>
+      <argument>Show the message count for one or more transports</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="console.command.messenger_stats"/>
     </service>
     <service id=".console.command.router_debug.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>debug:router</argument>
@@ -4676,7 +5136,7 @@
     </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.cxHw8DJ"/>
+      <argument type="service" id=".service_locator.t2jM0j."/>
       <argument type="collection">
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -4694,6 +5154,11 @@
         <argument key="debug:autowiring">console.command.debug_autowiring</argument>
         <argument key="debug:dotenv">console.command.dotenv_debug</argument>
         <argument key="debug:event-dispatcher">console.command.event_dispatcher_debug</argument>
+        <argument key="messenger:consume">console.command.messenger_consume_messages</argument>
+        <argument key="messenger:setup-transports">console.command.messenger_setup_transports</argument>
+        <argument key="debug:messenger">console.command.messenger_debug</argument>
+        <argument key="messenger:stop-workers">console.command.messenger_stop_workers</argument>
+        <argument key="messenger:stats">console.command.messenger_stats</argument>
         <argument key="debug:router">console.command.router_debug</argument>
         <argument key="router:match">console.command.router_match</argument>
         <argument key="debug:serializer">console.command.serializer_debug</argument>
@@ -4770,7 +5235,7 @@
         <argument key="make:webhook">maker.auto_command.make_webhook</argument>
       </argument>
     </service>
-    <service id=".service_locator.cxHw8DJ" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.t2jM0j." class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="console.command.about" type="service_closure" id=".console.command.about.lazy"/>
@@ -4789,6 +5254,11 @@
         <argument key="console.command.debug_autowiring" type="service_closure" id=".console.command.debug_autowiring.lazy"/>
         <argument key="console.command.dotenv_debug" type="service_closure" id=".console.command.dotenv_debug.lazy"/>
         <argument key="console.command.event_dispatcher_debug" type="service_closure" id=".console.command.event_dispatcher_debug.lazy"/>
+        <argument key="console.command.messenger_consume_messages" type="service_closure" id=".console.command.messenger_consume_messages.lazy"/>
+        <argument key="console.command.messenger_setup_transports" type="service_closure" id=".console.command.messenger_setup_transports.lazy"/>
+        <argument key="console.command.messenger_debug" type="service_closure" id=".console.command.messenger_debug.lazy"/>
+        <argument key="console.command.messenger_stop_workers" type="service_closure" id=".console.command.messenger_stop_workers.lazy"/>
+        <argument key="console.command.messenger_stats" type="service_closure" id=".console.command.messenger_stats.lazy"/>
         <argument key="console.command.router_debug" type="service_closure" id=".console.command.router_debug.lazy"/>
         <argument key="console.command.router_match" type="service_closure" id=".console.command.router_match.lazy"/>
         <argument key="console.command.serializer_debug" type="service_closure" id=".console.command.serializer_debug.lazy"/>
@@ -4886,6 +5356,8 @@
     <service id="Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface" alias="services_resetter"/>
     <service id="Symfony\Component\DependencyInjection\ReverseContainer" alias="reverse_container"/>
     <service id="Symfony\Component\String\Slugger\SluggerInterface" alias="slugger"/>
+    <service id="Symfony\Component\Clock\ClockInterface" alias="clock"/>
+    <service id="Psr\Clock\ClockInterface" alias="clock"/>
     <service id="Symfony\Component\HttpKernel\Fragment\FragmentUriGeneratorInterface" alias="fragment.uri_generator"/>
     <service id="error_renderer.html" alias="twig.error_renderer.html"/>
     <service id="error_renderer" alias="error_handler.error_renderer.serializer"/>
@@ -4931,6 +5403,9 @@
     <service id="SessionHandlerInterface" alias="session.handler.native"/>
     <service id="session.storage.factory" alias="session.storage.factory.native"/>
     <service id="session.handler" alias="session.handler.native"/>
+    <service id="messenger.default_serializer" alias="messenger.transport.native_php_serializer"/>
+    <service id="messenger.default_bus" alias="messenger.bus.default" public="true"/>
+    <service id="Symfony\Component\Messenger\MessageBusInterface" alias="messenger.bus.default"/>
     <service id="Twig\Environment" alias="twig"/>
     <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection"/>
     <service id="Doctrine\Persistence\ManagerRegistry" alias="doctrine"/>
@@ -4950,7 +5425,7 @@
     <service id="nelmio_api_doc.generator" alias="nelmio_api_doc.generator.default" public="true"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.leiThow"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.i6PFaYj"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="Psr\Log\LoggerInterface" alias="logger"/>
@@ -4960,9 +5435,10 @@
     <service id="argument_resolver" alias="debug.argument_resolver"/>
     <service id="twig.error_renderer.html.inner" alias="error_handler.error_renderer.html"/>
     <service id="doctrine.orm.default_metadata_driver" alias=".doctrine.orm.default_metadata_driver"/>
+    <service id=".service_locator.GIuJv7e" alias="messenger.retry_strategy_locator"/>
     <service id=".service_locator.n_ENPtW" alias=".service_locator.zHyJIs5"/>
     <service id=".service_locator.Wn0LBAC" alias=".service_locator.zN9ngJz"/>
-    <service id=".service_locator.C8gtfaN" alias=".service_locator.TckZ.0d"/>
+    <service id=".service_locator.JhI0pyL" alias=".service_locator.kbyEuPk"/>
     <service id=".service_locator.CpdsZx_" alias=".service_locator.YSugF_d"/>
     <service id=".service_locator.G.4knon" alias=".service_locator.ZyP9f7K"/>
   </services>

@@ -19,4 +19,10 @@ final class AnagramController extends AbstractController
         $words = $repo->findAnagrams($word);
         return $this->json(['anagrams' => $words]);
     }
+    #[Route('/api/v1/anagramCount', methods: ['GET'])]
+    public function findAnagramCount(WordRepository $repo): Response
+    {
+        $words = $repo->findCountOfAll();
+        return $this->json(['wordCount' => $words]);
+    }
 }

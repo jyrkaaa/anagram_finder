@@ -4,12 +4,16 @@ import { useState } from "react";
 import { ImportService } from "@/services/ImportService";
 import { IWordsInput } from "@/types/domain/IWordsInput";
 import {DeleteService} from "@/services/DeleteService";
+import {ImportBEService} from "@/services/ImportBEService";
+import {IUrlInput} from "@/types/domain/IUrlInput";
 
 export default function WordInput() {
     const importService = new ImportService();
+    const fullBEService = new ImportBEService();
     const deleteService = new DeleteService();
 
     const [url, setUrl] = useState("");
+    const [backendUrl, setBackendUrl] = useState("");
     const [status, setStatus] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -54,6 +58,28 @@ export default function WordInput() {
             }
 
             setStatus(prev => [...prev, "All batches completed."]);
+        } catch (error: any) {
+            setStatus([`Error: ${error.message}`]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBackendSubmit = async () => {
+        setStatus(["For fully implementing by backend..."]);
+        setLoading(true);
+        setProgress(0);
+
+        try {
+            const input: IUrlInput = { url: backendUrl };
+            await deleteService.deleteAsyncModified();
+            const result = await fullBEService.addAsyncBE(input);
+
+            if (result.errors) {
+                setStatus(prev => [...prev, `Backend import failed: ${result.errors!.join(", ")}`]);
+            } else {
+                setStatus(prev => [...prev, `Backend import done.`]);
+            }
         } catch (error: any) {
             setStatus([`Error: ${error.message}`]);
         } finally {
@@ -106,8 +132,27 @@ export default function WordInput() {
                         {loading ? "Working..." : "Delete All Words"}
                     </button>
                 </div>
-
             </form>
+
+            <h4 className="mt-5">Backend-Handled Import</h4>
+            <div className="mb-3">
+                <input
+                    type="url"
+                    className="form-control mb-2"
+                    placeholder="Enter .txt file URL (backend import)"
+                    value={backendUrl}
+                    onChange={(e) => setBackendUrl(e.target.value)}
+                    required
+                />
+                <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleBackendSubmit}
+                    disabled={loading}
+                >
+                    {loading ? "Importing via Backend..." : "Start Backend Import"}
+                </button>
+            </div>
 
             {loading && (
                 <div className="mb-3">
@@ -115,7 +160,7 @@ export default function WordInput() {
                         <div
                             className="progress-bar progress-bar-striped progress-bar-animated"
                             role="progressbar"
-                            style={{width: `${progress}%`}}
+                            style={{ width: `${progress}%` }}
                             aria-valuenow={progress}
                             aria-valuemin={0}
                             aria-valuemax={100}

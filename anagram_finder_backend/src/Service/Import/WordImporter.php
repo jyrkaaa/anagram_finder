@@ -2,8 +2,8 @@
 namespace App\Service\Import;
 
 use App\Entity\Word;
+use App\Service\Import\Strategy\WordImportStrategyInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Traversable;
 
 class WordImporter
 {
@@ -79,4 +79,5 @@ class WordImporter
         $entities = [];
         gc_collect_cycles();
     }
+
 }
