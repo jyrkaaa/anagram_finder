@@ -21,13 +21,16 @@ class WordRepository extends ServiceEntityRepository
     public function findAnagrams(string $word) : array
     {
         $sorted = SortString::sort($word);
-        $results = $this->findBy(['sorted_key' => $sorted]);
+        $results = $this->createQueryBuilder('w')
+            ->select('w.name')
+            ->where('w.sorted_key = :sorted')
+            ->setParameter('sorted', $sorted);
 
-        return array_map(fn($w) => $w->getName(), $results);
+        return array_column($results->getQuery()->getArrayResult(), 'name');
     }
     public function findCountOfAll() : int
     {
-        $results = $this->createQueryBuilder('w')->select('COUNT(w)')->getQuery()->getSingleScalarResult();
+        $results = $this->createQueryBuilder('w')->select('COUNT(w.id)')->getQuery()->getSingleScalarResult();
 
         return $results;
     }
