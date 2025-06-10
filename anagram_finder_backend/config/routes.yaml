@@ -2,6 +2,10 @@ anagram_list:
     path: /api/v1/anagram
     controller: App\Controller\AnagramController::findAnagram
     methods: [GET]
+anagram_count:
+    path: /api/v1/anagramCount
+    controller: App\Controller\AnagramController::findAnagramCount
+    methods: [GET]
 
 wordbase_import:
     path: /api/v1/words

@@ -16,10 +16,14 @@ services:
     App\:
         resource: '../src/'
 
-    App\Service\Import\:
-        resource: '../src/Service/Import'
-        tags: ['app.word_import_strategy']
+    App\Service\Import\Strategy\:
+        resource: '../src/Service/Import/Strategy'
+        tags: [ 'app.word_import_strategy' ]
 
     App\Service\Import\WordImporter:
+        arguments:
+            $strategies: !tagged_iterator app.word_import_strategy
+
+    App\Service\Import\StartWordImportHandler:
         arguments:
             $strategies: !tagged_iterator app.word_import_strategy

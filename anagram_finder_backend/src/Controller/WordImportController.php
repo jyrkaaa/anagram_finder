@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Word;
 use App\Repository\WordRepository;
+use App\Service\Import\StartWordImportMessage;
 use App\Service\Import\WordImporter;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class WordImportController extends AbstractController
@@ -35,8 +38,8 @@ final class WordImportController extends AbstractController
      *         )
      *     ),
      *     @OA\Response(
-     *         response=200,
-     *         description="Words successfully imported",
+     *         response=202,
+     *         description="Words queue started",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(
@@ -65,7 +68,7 @@ final class WordImportController extends AbstractController
      * )
      */
     #[Route('/api/v1/words', methods: ['POST'])]
-    public function import(Request $request, WordImporter $importer): JsonResponse
+    public function import(Request $request, MessageBusInterface $bus): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $url = $data['url'] ?? null;
@@ -76,12 +79,12 @@ final class WordImportController extends AbstractController
         }
 
         try {
-            $count = $importer->import($url, $format);
+            $bus->dispatch(new StartWordImportMessage($url, $format));
+            return $this->json(['status' => 'Import Job Queued'], 202);
         } catch (\Throwable $e) {
             return $this->json(['error' => $e->getMessage()], 500);
         }
 
-        return $this->json(['message' => "Imported $count words"]);
     }
     #[Route('/api/v1/wordsJson', methods: ['POST'])]
     public function importJson(Request $request, WordRepository $repo, WordImporter $importer): JsonResponse {

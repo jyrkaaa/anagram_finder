@@ -87,6 +87,12 @@ class WordRepository extends ServiceEntityRepository
 
         return array_map(fn($w) => $w->getName(), $results);
     }
+    public function findCountOfAll() : int
+    {
+        $results = $this->createQueryBuilder('w')->select('COUNT(w)')->getQuery()->getSingleScalarResult();
+
+        return $results;
+    }
 
     public function importFromJson(array $array, WordImporter $importer): int
     {
