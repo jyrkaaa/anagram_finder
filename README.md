@@ -1,6 +1,6 @@
 # anagram_finder
-Aws hosted php backend and react next.js frontend
-By connecting with the frontend to port 8000, the apis are reacable.
+Aws hosted php backend and react next.js frontend.
+By connecting with the frontend to port 8000, the apis are reachable.
 Cors error from backend can be resolved by connecting from port 3000.
 Wordbase importing is right now based on the assumption that the url will contain a .txt file.
 Anagram search is searched with word parameter: "http://13.51.160.33:8000/api/v1/anagram?word="
