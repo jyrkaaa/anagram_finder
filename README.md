@@ -22,3 +22,4 @@ http://13.51.160.33:8000/api/v1/words - expects body of {"url": "your_url.com/da
 
 [DELETE]
 http://13.51.160.33:8000/api/v1/words - cleanses DB (no body)
+!NB!- NOT HOSTED ANYMORE
